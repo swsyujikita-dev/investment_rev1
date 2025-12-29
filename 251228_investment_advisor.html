@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投資信託おすすめ診断</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .question-section {
+            margin-bottom: 30px;
+        }
+
+        .question-section.hidden {
+            display: none;
+        }
+
+        .question-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 15px;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #d0d0d0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .ranking-item {
+            background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .ranking-item:nth-child(1) {
+            border-left-color: #ffd700;
+        }
+
+        .ranking-item:nth-child(2) {
+            border-left-color: #c0c0c0;
+        }
+
+        .ranking-item:nth-child(3) {
+            border-left-color: #cd7f32;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .rank-1 { background: #ffd700; color: #333; }
+        .rank-2 { background: #c0c0c0; color: #333; }
+        .rank-3 { background: #cd7f32; color: white; }
+
+        .fund-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .fund-type {
+            color: #667eea;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .fund-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .advice-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .advice-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .advice-text {
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .restart-btn {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="questionnaire">
+            <h1>💰 投資信託おすすめ診断</h1>
+            <p class="subtitle">5つの質問に答えて、あなたにぴったりの投資信託を見つけましょう</p>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <!-- 質問1: 年齢 -->
+            <div class="question-section" id="q1">
+                <label class="question-label">
+                    <span class="question-number">1</span>
+                    あなたの年齢を教えてください
+                </label>
+                <div class="options">
+                    <div class="option" data-value="20s">20代</div>
+                    <div class="option" data-value="30s">30代</div>
+                    <div class="option" data-value="40s">40代</div>
+                    <div class="option" data-value="50s">50代</div>
+                    <div class="option" data-value="60s">60代以上</div>
+                </div>
+            </div>
+
+            <!-- 質問2: 投資経験 -->
+            <div class="question-section hidden" id="q2">
+                <label class="question-label">
+                    <span class="question-number">2</span>
+                    投資経験はありますか？
+                </label>
+                <div class="options">
+                    <div class="option" data-value="none">全くない</div>
+                    <div class="option" data-value="beginner">少しある（1年未満）</div>
+                    <div class="option" data-value="intermediate">ある程度ある（1-5年）</div>
+                    <div class="option" data-value="advanced">豊富にある（5年以上）</div>
+                </div>
+            </div>
+
+            <!-- 質問3: 節約への興味 -->
+            <div class="question-section hidden" id="q3">
+                <label class="question-label">
+                    <span class="question-number">3</span>
+                    節約や資産形成に興味がありますか？
+                </label>
+                <div class="options">
+                    <div class="option" data-value="high">とても興味がある</div>
+                    <div class="option" data-value="medium">興味がある</div>
+                    <div class="option" data-value="low">あまり興味がない</div>
+                </div>
+            </div>
+
+            <!-- 質問4: 貯蓄 -->
+            <div class="question-section hidden" id="q4">
+                <label class="question-label">
+                    <span class="question-number">4</span>
+                    投資に回せる貯蓄はありますか？
+                </label>
+                <div class="options">
+                    <div class="option" data-value="plenty">十分にある（100万円以上）</div>
+                    <div class="option" data-value="moderate">ある程度ある（30-100万円）</div>
+                    <div class="option" data-value="little">少しある（10-30万円）</div>
+                    <div class="option" data-value="minimal">少額から始めたい（10万円未満）</div>
+                </div>
+            </div>
+
+            <!-- 質問5: NISA利用 -->
+            <div class="question-section hidden" id="q5">
+                <label class="question-label">
+                    <span class="question-number">5</span>
+                    NISAを利用していますか？
+                </label>
+                <div class="options">
+                    <div class="option" data-value="using">利用している</div>
+                    <div class="option" data-value="planning">利用を検討している</div>
+                    <div class="option" data-value="not">利用していない・知らない</div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" id="prevBtn" style="display:none;">戻る</button>
+                <button class="btn btn-primary" id="nextBtn" disabled>次へ</button>
+            </div>
+        </div>
+
+        <div class="result-section" id="results">
+            <h1>🎯 あなたにおすすめの投資信託</h1>
+            <p class="subtitle">診断結果に基づいたTOP3をご紹介します</p>
+            
+            <div id="rankingList"></div>
+            
+            <div class="advice-section">
+                <div class="advice-title">
+                    💡 アドバイス
+                </div>
+                <div class="advice-text" id="adviceText"></div>
+            </div>
+
+            <button class="btn btn-primary restart-btn" id="restartBtn">もう一度診断する</button>
+        </div>
+    </div>
+
+    <script>
+        const answers = {
+            age: '',
+            experience: '',
+            interest: '',
+            savings: '',
+            nisa: ''
+        };
+
+        let currentQuestion = 1;
+        const totalQuestions = 5;
+
+        // 投資信託データベース
+        const fundDatabase = {
+            conservative: [
+                {
+                    name: 'eMAXIS Slim 国内債券インデックス',
+                    type: '国内債券型',
+                    description: '日本の債券に投資する低リスク・低コストファンド。安定した運用を目指す方に最適で、値動きが穏やかです。'
+                },
+                {
+                    name: 'ニッセイ日本債券ファンド',
+                    type: '国内債券型',
+                    description: '日本国債を中心に投資し、安定したリターンを追求。初心者でも安心して保有できる商品です。'
+                },
+                {
+                    name: 'たわらノーロード 先進国債券',
+                    type: '外国債券型',
+                    description: '先進国の債券に分散投資。為替リスクはありますが、国内債券より高めのリターンが期待できます。'
+                }
+            ],
+            balanced: [
+                {
+                    name: 'eMAXIS Slim バランス（8資産均等型）',
+                    type: 'バランス型',
+                    description: '国内外の株式・債券・REITに均等分散投資。リスクとリターンのバランスが取れた万能型ファンドです。'
+                },
+                {
+                    name: 'セゾン・バンガード・グローバルバランスファンド',
+                    type: 'バランス型',
+                    description: '世界中の株式と債券に分散投資。長期投資に適した設計で、初心者から経験者まで人気の商品です。'
+                },
+                {
+                    name: '野村6資産均等バランス',
+                    type: 'バランス型',
+                    description: '6つの資産に均等配分し、安定性と成長性を両立。定期的なリバランスで資産配分を維持します。'
+                }
+            ],
+            growth: [
+                {
+                    name: 'eMAXIS Slim 全世界株式（オール・カントリー）',
+                    type: '全世界株式型',
+                    description: '世界中の株式に投資する人気No.1ファンド。これ一本で世界経済の成長を取り込めます。長期保有に最適です。'
+                },
+                {
+                    name: 'eMAXIS Slim 米国株式（S&P500）',
+                    type: '米国株式型',
+                    description: '米国の代表的な500社に投資。世界経済を牽引する米国株の成長を享受できます。'
+                },
+                {
+                    name: '楽天・全米株式インデックス・ファンド',
+                    type: '米国株式型',
+                    description: '米国株式市場全体に投資。大型株から小型株まで幅広くカバーし、米国経済の成長を捉えます。'
+                }
+            ],
+            aggressive: [
+                {
+                    name: 'eMAXIS Slim 米国株式（S&P500）',
+                    type: '米国株式型',
+                    description: '米国の主要企業500社に投資。高い成長が期待できますが、短期的な値動きも大きめです。'
+                },
+                {
+                    name: 'iFreeNEXT FANG+インデックス',
+                    type: 'テーマ型株式',
+                    description: 'GAFAMなど米国の次世代テクノロジー企業に集中投資。高リスク・高リターンを狙う方向けです。'
+                },
+                {
+                    name: 'eMAXIS Slim 新興国株式インデックス',
+                    type: '新興国株式型',
+                    description: '成長著しい新興国の株式に投資。高いリターンが期待できますが、値動きは激しめです。'
+                }
+            ],
+            nisaFriendly: [
+                {
+                    name: 'eMAXIS Slim 全世界株式（オール・カントリー）',
+                    type: '全世界株式型',
+                    description: 'つみたてNISA対象商品。世界経済全体の成長を取り込み、長期の資産形成に最適です。'
+                },
+                {
+                    name: 'SBI・V・S&P500インデックス・ファンド',
+                    type: '米国株式型',
+                    description: 'つみたてNISA対象。超低コストで米国の主要企業に投資でき、長期保有で大きな成果が期待できます。'
+                },
+                {
+                    name: '楽天・全世界株式インデックス・ファンド',
+                    type: '全世界株式型',
+                    description: 'つみたてNISA対象。楽天証券で人気のファンドで、世界中の株式に低コストで投資できます。'
+                }
+            ]
+        };
+
+        // イベントリスナー設定
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const parent = this.parentElement;
+                parent.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                const questionId = this.closest('.question-section').id;
+                const value = this.dataset.value;
+                
+                switch(questionId) {
+                    case 'q1': answers.age = value; break;
+                    case 'q2': answers.experience = value; break;
+                    case 'q3': answers.interest = value; break;
+                    case 'q4': answers.savings = value; break;
+                    case 'q5': answers.nisa = value; break;
+                }
+                
+                document.getElementById('nextBtn').disabled = false;
+            });
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (currentQuestion < totalQuestions) {
+                document.getElementById('q' + currentQuestion).classList.add('hidden');
+                currentQuestion++;
+                document.getElementById('q' + currentQuestion).classList.remove('hidden');
+                document.getElementById('nextBtn').disabled = true;
+                document.getElementById('prevBtn').style.display = 'block';
+                
+                // 既に選択済みの場合は次へボタンを有効化
+                const currentOptions = document.getElementById('q' + currentQuestion).querySelectorAll('.option');
+                const hasSelected = Array.from(currentOptions).some(opt => opt.classList.contains('selected'));
+                if (hasSelected) {
+                    document.getElementById('nextBtn').disabled = false;
+                }
+                
+                if (currentQuestion === totalQuestions) {
+                    document.getElementById('nextBtn').textContent = '診断結果を見る';
+                }
+                
+                updateProgress();
+            } else {
+                showResults();
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            document.getElementById('q' + currentQuestion).classList.add('hidden');
+            currentQuestion--;
+            document.getElementById('q' + currentQuestion).classList.remove('hidden');
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('nextBtn').textContent = '次へ';
+            
+            if (currentQuestion === 1) {
+                document.getElementById('prevBtn').style.display = 'none';
+            }
+            
+            updateProgress();
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', function() {
+            location.reload();
+        });
+
+        function updateProgress() {
+            const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function calculateRecommendations() {
+            let riskScore = 0;
+            
+            // 年齢によるリスク許容度
+            if (answers.age === '20s' || answers.age === '30s') riskScore += 3;
+            else if (answers.age === '40s') riskScore += 2;
+            else if (answers.age === '50s') riskScore += 1;
+            else riskScore += 0;
+            
+            // 投資経験
+            if (answers.experience === 'advanced') riskScore += 3;
+            else if (answers.experience === 'intermediate') riskScore += 2;
+            else if (answers.experience === 'beginner') riskScore += 1;
+            
+            // 資産形成への興味
+            if (answers.interest === 'high') riskScore += 2;
+            else if (answers.interest === 'medium') riskScore += 1;
+            
+            // 貯蓄状況
+            if (answers.savings === 'plenty') riskScore += 2;
+            else if (answers.savings === 'moderate') riskScore += 1;
+            
+            // NISA利用状況を考慮
+            const useNisa = answers.nisa === 'using' || answers.nisa === 'planning';
+            
+            // リスクスコアに基づいて推奨カテゴリを決定
+            let recommendations = [];
+            
+            if (riskScore >= 9 && useNisa) {
+                recommendations = fundDatabase.nisaFriendly;
+            } else if (riskScore >= 9) {
+                recommendations = fundDatabase.aggressive;
+            } else if (riskScore >= 6) {
+                recommendations = fundDatabase.growth;
+            } else if (riskScore >= 3) {
+                recommendations = fundDatabase.balanced;
+            } else {
+                recommendations = fundDatabase.conservative;
+            }
+            
+            return recommendations;
+        }
+
+        function generateAdvice() {
+            let advice = '';
+            
+            // 年齢に基づくアドバイス
+            if (answers.age === '20s' || answers.age === '30s') {
+                advice += '若いうちは時間を味方につけられます。長期投資で複利効果を最大限に活用しましょう。';
+            } else if (answers.age === '40s') {
+                advice += '資産形成の重要な時期です。リスクとリターンのバランスを取りながら着実に資産を増やしましょう。';
+            } else if (answers.age === '50s') {
+                advice += '老後資金の準備期です。安定性を重視しつつ、適度な成長も目指しましょう。';
+            } else {
+                advice += '資産の保全が重要な時期です。安定した運用を心がけ、大きなリスクは避けましょう。';
+            }
+            
+            advice += '<br><br>';
+            
+            // 投資経験に基づくアドバイス
+            if (answers.experience === 'none' || answers.experience === 'beginner') {
+                advice += 'まずは少額から始めて、投資に慣れることが大切です。';
+            } else {
+                advice += '経験を活かして、ポートフォリオの最適化を図りましょう。';
+            }
+            
+            advice += '<br><br>';
+            
+            // NISAに関するアドバイス
+            if (answers.nisa === 'not') {
+                advice += '💡 <strong>NISA制度の活用をおすすめします！</strong> 投資利益が非課税になるため、長期投資に最適です。';
+            } else if (answers.nisa === 'planning') {
+                advice += '💡 NISA口座を開設したら、まずはつみたて投資から始めてみましょう。毎月コツコツと積み立てることで、リスクを分散できます。';
+            } else {
+                advice += '💡 NISA枠を最大限活用し、非課税メリットを享受しましょう。年間の投資枠を計画的に使うことが重要です。';
+            }
+            
+            return advice;
+        }
+
+        function showResults() {
+            const recommendations = calculateRecommendations();
+            const rankingList = document.getElementById('rankingList');
+            
+            rankingList.innerHTML = '';
+            recommendations.forEach((fund, index) => {
+                const rankClass = `rank-${index + 1}`;
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                item.innerHTML = `
+                    <div class="rank-badge ${rankClass}">第${index + 1}位</div>
+                    <div class="fund-name">${fund.name}</div>
+                    <div class="fund-type">${fund.type}</div>
+                    <div class="fund-description">${fund.description}</div>
+                `;
+                rankingList.appendChild(item);
+            });
+            
+            document.getElementById('adviceText').innerHTML = generateAdvice();
+            document.getElementById('questionnaire').style.display = 'none';
+            document.getElementById('results').classList.add('show');
+            document.getElementById('progressBar').style.width = '100%';
+        }
+
+        // 初期化
+        updateProgress();
+    </script>
+</body>
+</html>
